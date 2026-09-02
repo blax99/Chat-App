@@ -3,6 +3,7 @@ function UserList({
   selectedUser,
   onSelectUser,
   onLogout,
+  stats,
 }) {
   return (
     <div className="h-full bg-gray-100">
@@ -18,6 +19,22 @@ function UserList({
         >
           Logout
         </button>
+      </div>
+
+      <div className="flex gap-4 border-b p-4 text-sm">
+        <div>
+          <span className="font-semibold">
+            Users:
+          </span>{" "}
+          {stats.totalUsers}
+        </div>
+
+        <div>
+          <span className="font-semibold">
+            Chats:
+          </span>{" "}
+          {stats.totalChats}
+        </div>
       </div>
 
       {/* User List */}

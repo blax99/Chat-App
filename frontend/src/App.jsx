@@ -12,6 +12,7 @@ import createSocket from "./socket/socket";
 import {
   getUsers,
   getChatHistory,
+  getStats,
 } from "./services/chatService";
 
 import UserList from "./components/UserList";
@@ -20,6 +21,7 @@ import ChatWindow from "./components/ChatWindow";
 
 function App() {
   const [page, setPage] = useState("home");
+  const [joinNotification, setJoinNotification] = useState("");
   // =====================================
   // AUTH STATE
   // =====================================
@@ -42,7 +44,10 @@ function App() {
     useState(null);
 
   const [messages, setMessages] = useState([]);
-
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalChats: 0,
+  });
 
   // =====================================
   // REFS
@@ -121,6 +126,24 @@ function App() {
 
   }, [auth]);
 
+  useEffect(() => {
+    if (!auth) return;
+
+    const loadStats = async () => {
+      try {
+        const data = await getStats(auth.token);
+
+        setStats(data);
+      } catch (error) {
+        console.error(
+          "Failed to load statistics:",
+          error
+        );
+      }
+    };
+
+    loadStats();
+  }, [auth]);
 
   // =====================================
   // CONNECT SOCKET
@@ -200,6 +223,15 @@ function App() {
       }
     );
 
+    socket.on("user:joined", (userData) => {
+      console.log("User joined:", userData);
+
+      setJoinNotification(`${userData.name} joined the chat`);
+
+      setTimeout(() => {
+        setJoinNotification("");
+      }, 3000);
+    });
 
     socket.on("user:status", (statusData) => {
       console.log("User status update:", statusData);
@@ -352,7 +384,13 @@ function App() {
   // =====================================
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="relative flex h-screen overflow-hidden">
+      {joinNotification && (
+        <div className="absolute left-1/2 top-4 z-50 -translate-x-1/2 rounded-lg bg-green-500 px-5 py-3 text-sm font-medium text-white shadow-lg">
+          {joinNotification}
+        </div>
+      )}
+      
       {/* Sidebar */}
       <div className="w-1/3 border-r">
         <UserList
@@ -360,6 +398,7 @@ function App() {
           selectedUser={selectedUser}
           onSelectUser={handleSelectUser}
           onLogout={handleLogout}
+          stats={stats}
         />
       </div>
 

@@ -29,3 +29,13 @@ export const getChatHistory = async (
 
   return response.data;
 };
+
+export const getStats = async (token) => {
+  const response = await api.get("/stats", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
