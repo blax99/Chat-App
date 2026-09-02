@@ -31,6 +31,11 @@ const setupSocket = (io) => {
         lastSeen: null,
       });
 
+      socket.broadcast.emit("user:joined", {
+        userId,
+        name: user.name,
+      });
+
       socket.broadcast.emit("user:status", {
         userId,
         isOnline: true,
